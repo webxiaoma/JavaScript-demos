@@ -1,0 +1,101 @@
+<script>
+
+
+// 单例就是保证一个类只有一个实例，实现的方法一般是先判断实例存在与否，如果存在直接返回，如果不存在就创建了再返回，这就确保了一个类只有一个实例对象。
+
+
+
+// 单例模式一 (对象字面量)
+
+var singleton = {
+	name:'webxiaoma',
+	age:24
+}
+
+var singOne = singleton;
+var singTwo = singleton;
+
+console.log(singOne === singTwo)
+
+
+
+// js 单例模式二 (构造函数内部判断)
+
+
+function single(args){
+
+	if(typeof single.instance === 'object')
+		return single.instance;
+
+	this.name = args.name || "jhon";
+    this.age = args.age || 23;
+
+    single.instance = this; 
+}
+    
+
+
+var sinOne = new single({name:'King',age:24})
+var sinTwo = new single({name:'Tom',age:26})
+
+console.log(sinOne === sinTwo)
+console.log(sinOne.name,sinTwo.name)
+
+
+// 单例模式三
+
+
+var singleThree = (function(){
+	var instance;
+
+	function construct(args){
+		this.name = args.name
+	}
+
+	instance = new construct({name:'King'});
+
+	return instance
+})()
+
+var singleThreeOne = singleThree;
+var singleThreeTwo = singleThree;
+console.log(singleThreeOne === singleThreeTwo)
+
+
+// 单例模式四 (缓存实例)
+
+
+function singleFour(){
+
+   var instance = this;
+   this.name = "King";
+
+   singleFour = function(){
+   	 return instance;
+   }
+
+}
+
+
+var singleFourOne = new singleFour();
+var singleFourTwo = new singleFour();
+console.log(singleFourTwo === singleFourOne)
+
+
+// es6 单例模式
+
+class singleFive{
+
+  constructor(){
+     if(typeof singleFive.instance === 'object')
+     	return singleFive.instance
+
+     singleFive.instance = this
+
+  }
+}
+
+let singleFiveOne = new singleFive();
+let singleFiveTwo = new singleFive();
+console.log(singleFiveOne === singleFiveTwo)
+</script>
