@@ -1,0 +1,40 @@
+<script>
+
+/*
+
+构造函数模式
+
+地址： https://www.cnblogs.com/wangshichuan/p/5884336.html
+
+
+
+
+*/ 
+
+function Person(name){
+	this.name = name;
+	this.age = 23;
+	this.eating = function(){
+		console.log('I am eating')
+	}
+}
+
+let person1 = new Person('King');
+let person2 = new Person('Jhon');
+
+console.log(person1,person2)
+
+class People{
+	constructor(name){
+	   this.name = name;
+	   this.eating = function(){
+		 console.log('I am eating')
+	   }
+	}
+}
+
+let people1 = new People('King');
+
+console.log(people1)
+
+</script>
