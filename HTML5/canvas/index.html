@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+
+<!-- 简单画布 生成的图片保存下来默认是png格式-->
+
+    <canvas id="one" width='450' height='160' style="border:1px solid #111">
+    </canvas>
+
+    <script>
+        var can = document.getElementById('one');
+        var context = can.getContext('2d')
+
+        //  绘制矩形
+        context.fillStyle='red'; // 绘制的样式 默认是黑色
+        context.fillRect(5,5,100,50);  // 绘制的坐标为5,5 宽度100 高的50
+        
+        
+        // 绘制线条
+        context.moveTo(130, 10); // 起始位置
+        context.lineTo(150, 50); // 终点位置
+        context.stroke() // 绘制
+        
+        // 绘制圆形
+        context.beginPath();
+        context.arc(200,30,20,0,2*Math.PI);
+        context.stroke();
+        /*
+            arc(x,y,r,start,stop)
+            画布的左上角坐标为0,0
+
+            x：圆心在x轴上的坐标
+            y：圆心在y轴上的坐标
+            r：半径长度
+            start：起始角度，以弧度表示，圆心平行的右端为0度
+            stop：结束角度，以弧度表示
+            注意：Math.PI表示180°，画圆的方向是顺时针
+        */
+
+        // 绘制文字
+
+        context.font='20px Arial';
+        context.fillText('你好 webxiaoma',250,50)
+        context.strokeText('你好 webxiaoma', 20, 120, 140); // 文本，x, y, minWidth
+       
+    </script>
+
+    <canvas id='two' width='350' height='200' style='border:1px solid #111'>
+        您的浏览器不支持canvas
+    </canvas>
+
+    <script>
+      var can = document.getElementById('two');
+      var context = can.getContext('2d');
+       
+    //   绘制渐变
+      var grd = context.createLinearGradient(0, 0, 120, 0);
+      grd.addColorStop(0, 'red');
+      grd.addColorStop(0.5, 'white');
+      grd.addColorStop(1, 'blue');
+    // 填充渐变
+
+      context.fillStyle = grd;
+      context.fillRect(10,10,100,50)
+
+
+    /*
+    createRadialGradient 是制作径向渐变的
+    制作径向渐变时  createRadialGradient(x , y , r , x1 , y1 , r1)
+
+        x: 渐变的开始圆的 x 坐标
+        y: 渐变的开始圆的 y 坐标
+        r: 开始圆的半径
+        x1: 渐变的结束圆的 x 坐标
+        y1: 渐变的结束圆的 y 坐标
+        r1: 结束圆的半径
+(x, y, r) (x1,y1,r1)分别可以代表一个圆形的特征, 
+个人感觉通常情况下(x,y) 和 (x1,y1)简单地相同即可(即同心圆), 这样做出来的径向渐变已经十分美观,符合大众审美观。
+    */   
+     
+     var grdTwo = context.createRadialGradient(150,150,5,150,150,100);
+     grdTwo.addColorStop(0,'yellow');
+     grdTwo.addColorStop(0.5,'pink');
+     grdTwo.addColorStop(1,'skyblue');
+      
+     context.fillStyle = grdTwo;
+     context.fillRect(120,10,150,150) 
+    </script>
+
+</body>
+</html>
