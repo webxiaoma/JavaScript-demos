@@ -1,2 +1,3 @@
-# JavaScript-domes
-JavaScript 练习
+# 函数式编程
+
+
