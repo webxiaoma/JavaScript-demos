@@ -4,3 +4,8 @@
 ### 一、推荐阅读文章
 
 1. [javascript-发布订阅模式](http://www.cnblogs.com/xiaohuochai/p/8031564.html)
+
+
+### 二、发布订阅者优缺点
+
+

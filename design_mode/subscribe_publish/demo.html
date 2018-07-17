@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>发布订阅者模式</title>
+</head>
+<body>
+
+
+     <script>
+           let pubsup = (function(){
+                let pubsupObj = {
+                    clientList:[], // 存储订阅者
+                    listen:function(key,fn){ // 添加订阅者
+                       if(!this.clientList[key]){ // 判断某个订阅者是否已经添加
+                           this.clientList[key] = [];
+                       }
+                       this.clientList[key].push(fn)
+                    },
+                    trigger:function(){ // 发布（通知）订阅者
+                        let key = Array.prototype.slice.call(arguments)
+                        let funs = this.clientList[key]
+
+                        if(!funs || funs.length === 0){ // 判断订阅者订阅的消息是否存在
+                            return false
+                        }
+
+                        for(let len = funs.length,i=len-1; i>=0;i--){
+                            funs[i].apply(this,arguments)
+                        }
+                    }
+                }
+                return function(){
+                    return Object.create(pubsupObj)
+                }
+
+           })()
+         
+           let event = pubsup()
+           event.listen("message",function(){
+               console.log("我是messag订阅者")
+           })
+           event.listen("message",function(){
+               console.log("我是第二个messag订阅者")
+           })
+
+           event.trigger("message")
+     </script>
+</body>
+</html>
