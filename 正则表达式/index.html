@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div>
+        <input id="inp" type="text">
+        <p id="result">
+            <span>结果是：</span>
+            <strong></strong>
+        </p>
+        <p>
+            <button>点击</button>
+        </p>
+    </div>
+    <script>
+        document.querySelector('button').onclick = function(){
+            var inpValue = document.getElementById('inp').value
+            var textWrap = document.querySelector("#result strong")
+            var reg = /^1[0-9]{10}$/
+            console.log(reg.test(Number(inpValue)))
+            if(reg.test(Number(inpValue))){
+                textWrap.innerHTML = "输入正确"
+            }else{
+                textWrap.innerHTML = "请输入正确的手机号"
+            }
+        }
+        
+    </script>
+    <script>
+            let str = "abcdefgDe";
+
+            // de 字符串替换成aa
+
+            let newStr = str.replace(/de/g,'aa') 
+            console.log(newStr)
+            // 结果abcaafg
+
+
+            //****js中一些正则表达式方法
+             
+
+            // test() 用法
+            let str1 = "hello world!";
+            let patt = /hello/; // 可以 new RegExp(hello)
+            
+            let result1 = patt.test(str1) //hello world!字符串 中含有字符串hello 结果为true
+            console.log(result1)
+
+           
+            // exec() 用法
+            let str2 = "hello world!";
+            let patt2 = /hello/; // 可以 new RegExp(hello)
+            let result2 = patt2.exec(str2) //["hello"]
+
+    </script>
+</body>
+</html>
