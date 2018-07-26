@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>js事件</title>
+    <style>
+        html{
+            width:100%;
+            height: 100%;
+        }
+        body{
+            width:100%;
+            height:100vh;
+            background: #eee;
+        }
+        .div1{
+            width:400px;
+            height:400px;
+            background:red;
+        }
+        .div2{
+            width:200px;
+            height:200px;
+            background:green;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="div1">
+        <div class="div2"></div>
+    </div>
+
+    <script>
+         
+        var div1 = document.querySelector('.div1')
+        var div2 = document.querySelector('.div2')
+
+        div1.onmouseover = function(){
+            console.log("onmouseover移动到了div1上")
+         }
+ 
+         div1.onmouseout = function(){
+             console.log("onmouseout我移动出了div1上")
+         }
+ 
+       
+        div1.onmouseenter = function(){
+            console.log("onmouseenter移动到了div1上")
+         }
+ 
+         div1.onmouseleave = function(){
+             console.log("onmouseleave移动出了div1上")
+         }
+    </script>
+</body>
+</html>
