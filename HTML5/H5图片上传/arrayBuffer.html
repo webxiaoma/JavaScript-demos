@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>ArrayBuffer</title>
+</head>
+<body>
+    <div id="div"></div>
+    <script>
+
+        //  let arybuf = new ArrayBuffer(40)
+
+        //  console.log(arybuf)
+        //  console.log(arybuf.byteLength)
+        
+        //  let dataView = new DataView(arybuf)
+        //  console.log(dataView)
+        //  console.log(dataView.getUint8(1))
+
+
+        //  let typeAry = new Int32Array(arybuf)
+        //  console.log(typeAry)
+
+
+        //  let copyArybuff = arybuf.slice(0,10)
+        //  console.log(copyArybuff)
+         
+
+        //  console.log(ArrayBuffer.isView(typeAry)) 
+
+
+
+        let buf = new ArrayBuffer(32)
+        let int32 = new Int32Array(buf)
+        let uint8 = new Uint8Array(buf)
+        console.log(int32[0]) // 0
+        console.log(uint8[0]) // 0
+
+        // 还可以直接修改
+        int32[0] = 1;
+        console.log(uint8[0]) // 1
+
+        
+        let typedArray3 = new Uint8Array([1, 2, 3, 4]);
+        console.log(typedArray3)
+   </script>
+</body>
+</html>
