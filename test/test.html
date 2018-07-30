@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>测试</title>
+</head>
+<body>
+    
+    
+    <input type="file" id="inp">
+    <img />
+    <script>
+       let inp = document.getElementById("inp")
+       let img = document.querySelector('img')
+       inp.onchange = function(e){
+           let file = e.target.files[0]
+           let blobUrl = URL.createObjectURL(file)
+           img.src = blobUrl
+
+       }
+
+       img.onload = function(){
+            URL.revokeObjectURL(this.src);  
+        }
+
+    </script>
+</body>
+</html>
