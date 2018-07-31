@@ -5,26 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>测试</title>
-</head>
-<body>
-    
-    
-    <input type="file" id="inp">
-    <img />
-    <script>
-       let inp = document.getElementById("inp")
-       let img = document.querySelector('img')
-       inp.onchange = function(e){
-           let file = e.target.files[0]
-           let blobUrl = URL.createObjectURL(file)
-           img.src = blobUrl
-
+    <style>
+       html,body{
+           width:100%;
+           height:100%;
        }
 
-       img.onload = function(){
-            URL.revokeObjectURL(this.src);  
-        }
+    </style>
+</head>
+<body>
 
+    <script>
+        let body = document.querySelector('body')
+
+        // body.onmousemove = function(e){
+        //     console.log(e.movementX)
+        //     console.log('鼠标所在浏览器中的X坐标：'+ e.clientX)
+        //     console.log('鼠标所在浏览器中的Y坐标：'+ e.clientY)
+        // }
+
+        // body.onmousedown = function(e){
+        //    console.log("鼠标按下左键为：" + e.button)
+        //    console.log("鼠标按下滚轮键为：" + e.button)
+        //    console.log("鼠标按下右键为：" + e.button)
+        // }
+
+        body.onkeydown = function(e){
+            console.log(e.key)
+        }
     </script>
 </body>
 </html>
