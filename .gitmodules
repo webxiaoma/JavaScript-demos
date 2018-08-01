@@ -1,6 +1,3 @@
 [submodule "docs/javascript"]
 	path = docs/javascript
 	url = git@git.kancloud.cn:webxiaoma/javascript.git
-[submodule "docs/h5"]
-	path = docs/h5
-	url = git@git.kancloud.cn:webxiaoma/h5.git

@@ -14,25 +14,30 @@
     </style>
 </head>
 <body>
-
+     <div>
+         <img src="aHR0cDovL3dlYnhpYW9tYS5jb20vYXNzZXRzL2ltYWdlcy9tYW5vbmcuanBn" alt="">
+     </div>
     <script>
-        let body = document.querySelector('body')
+       
+           let str ="你好"
 
-        // body.onmousemove = function(e){
-        //     console.log(e.movementX)
-        //     console.log('鼠标所在浏览器中的X坐标：'+ e.clientX)
-        //     console.log('鼠标所在浏览器中的Y坐标：'+ e.clientY)
-        // }
+           console.log(btoa(encodeURIComponent(str)))
 
-        // body.onmousedown = function(e){
-        //    console.log("鼠标按下左键为：" + e.button)
-        //    console.log("鼠标按下滚轮键为：" + e.button)
-        //    console.log("鼠标按下右键为：" + e.button)
-        // }
 
-        body.onkeydown = function(e){
-            console.log(e.key)
-        }
+          let btoaStr = btoa(encodeURIComponent(str))
+
+          console.log(decodeURIComponent(atob(btoaStr)))
+
+           console.log("哈".charCodeAt(0).toString(2))
+
+           console.log(String.toString(2))
+
+        // let url = "http://webxiaoma.com/assets/images/manong.jpg"
+        // let btoaStr = btoa(url)
+        // let atobStr = atob(btoaStr)
+        // console.log(atobStr)
+
+
     </script>
 </body>
 </html>
