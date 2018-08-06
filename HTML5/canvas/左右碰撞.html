@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>左右碰撞</title>
+    <style>
+     *{
+         margin:0;
+         padding:0;
+         border:0;
+     }
+     html,body{
+         width:100%;
+         height:100%;
+     }
+     canvas{
+         border:1px solid #eee;
+         margin:20px;
+     }
+    </style>
+</head>
+<body>
+    <canvas width="900" height="800">
+       您的浏览器不支持canvas
+    </canvas>
+
+    <script>
+        let canvas = document.querySelector('canvas')
+        let ctx=canvas.getContext("2d");
+        let ballAry = [];
+        let ballId = 0;
+        let g = .5 // 定义重力加速度
+        let bounce = 0.7;//定义反弹系数；
+        let Flag = true; // 标识，只添加一次定时
+
+        let startPosition = [] // 存储鼠标开始坐标位置
+        let endPosition = [] // 存储鼠标结束坐标位置
+        let current = [] // 当前鼠标坐标
+
+
+        canvas.onmousedown = function(e){
+           startPosition[0] = e.pageX - canvas.getBoundingClientRect().left;
+           startPosition[1] = e.pageY - canvas.getBoundingClientRect().top;
+        }  
+
+        canvas.onmousemove = function(e){
+            current[0] = e.pageX - canvas.getBoundingClientRect().left;
+            current[1] = e.pageY - canvas.getBoundingClientRect().top;
+        } 
+
+        canvas.onmouseup = function(e){
+
+            let  speed = []
+
+            endPosition[0] = e.pageX - canvas.getBoundingClientRect().left;
+            endPosition[1] = e.pageY - canvas.getBoundingClientRect().top;
+            speed[0] =  (startPosition[0] - endPosition[0])/10
+            speed[1] =  (startPosition[1] - endPosition[1])/10
+
+
+            let radius = Math.floor(Math.random()*10 + 15)
+            new Ball(current,speed,radius)
+        }
+
+        function Ball(position,speed,radius){
+           this.x = position[0];
+           this.y = position[1];
+           this.speedX = speed[0];  // 运动的x轴初始速度
+           this.speedY = speed[1];  // 运动的y轴初始速度
+           this.radius = radius;
+           ballAry[ballId] = this
+           this.id = ballId++;
+           this.init()
+        }
+        Ball.prototype.init = function(){
+            this.draw()
+            if(Flag){
+                this.updata()
+                Flag = false;
+            }
+        }
+        Ball.prototype.draw = function(){
+            ctx.beginPath();
+            ctx.arc(this.x,this.y,this.radius,0,2*Math.PI);
+            ctx.fillStyle = "red"
+            ctx.fill();
+            ctx.closePath();
+        }
+        Ball.prototype.checkCollide  = function(){
+            if(this.y >= 800 - this.radius){ // 碰撞底部时
+                this.y = 800 - this.radius
+                this.speedY *= -bounce; 
+                // if(this.speedY > -0.21 && this.speedY < 0.21){
+                //     this.speedY = 0;
+                //     // this.speedX *= 0.999
+                //     // if(Math.abs(this.speedY)<=0.1){
+                //     //     this.speedX = 0;
+                //     // }
+                // }
+
+                // console.log(this.speedY)
+                console.log(this.speedY)
+            }else if(this.y <= this.radius){
+                this.y = this.radius
+                this.speedY *= -bounce
+            }
+            this.speedY += g;
+            // x轴左右碰撞
+
+            if(this.x >= 900 - this.radius){
+                this.x = 900 - this.radius
+                this.speedX *= -bounce
+            }else if(this.x <= this.radius){
+                this.x = this.radius
+                this.speedX *= -bounce
+            }
+
+        }
+        Ball.prototype.updataPosition = function(){
+            this.checkCollide()
+            this.x += this.speedX
+            this.y += this.speedY
+        }
+        Ball.prototype.updata = function(){
+            ctx.clearRect(0, 0, 900, 800);
+            ballAry.map(item=>{
+                item.updataPosition()
+                item.draw()
+            })
+            requestAnimationFrame(arguments.callee);
+        }
+
+      
+    </script>
+</body>
+</html>

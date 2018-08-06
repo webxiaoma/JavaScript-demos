@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>自由落体</title>
+    <style>
+     *{
+         margin:0;
+         padding:0;
+         border:0;
+     }
+     html,body{
+         width:100%;
+         height:100%;
+     }
+     canvas{
+         border:1px solid #eee;
+         margin:20px;
+     }
+    </style>
+</head>
+<body>
+    <canvas width="900" height="800">
+       您的浏览器不支持canvas
+    </canvas>
+
+    <script>
+        let canvas = document.querySelector('canvas')
+        let ctx=canvas.getContext("2d");
+        let ballAry = [];
+        let ballId = 0;
+        let g = .5 // 定义重力加速度
+        let bounce = 0.8;//定义反弹系数；
+        let Flag = true;
+        let animateSum = 0;
+        canvas.onmousedown = function(e){
+           
+        } 
+
+        canvas.onmouseup = function(e){
+            let x = e.pageX - canvas.getBoundingClientRect().left;
+            let y = e.pageY - canvas.getBoundingClientRect().top;
+
+            let radius = Math.floor(Math.random()*10 + 15)
+            new Ball(x,y,radius)
+        }
+
+        function Ball(x,y,radius){
+           this.x = x;
+           this.y = y;
+           this.vx = 0;
+           this.vy = 0;
+           this.radius = radius;
+           ballAry[ballId] = this
+           this.id = ballId++;
+           this.animate = null;
+           this.init()
+        }
+        Ball.prototype.init = function(){
+            this.draw()
+            if(Flag){
+                this.updata()
+                Flag = false;
+            }
+        }
+        Ball.prototype.draw = function(){
+            ctx.beginPath();
+            ctx.arc(this.x,this.y,this.radius,0,2*Math.PI);
+            ctx.fillStyle = "red"
+            ctx.fill();
+            ctx.closePath();
+        }
+        Ball.prototype.updataPosition = function(){
+            if(this.y >= 800 - this.radius){ // 碰撞底部时
+                this.y = 800 - this.radius
+                this.vy *= -bounce; 
+            }
+            this.vy += g;
+            this.y += this.vy
+         
+        }
+        Ball.prototype.updata = function(){
+            ctx.clearRect(0, 0, 900, 800);
+            ballAry.map(item=>{
+                item.updataPosition()
+                item.draw()
+            })
+            let animateFrame = requestAnimationFrame(arguments.callee);
+        }
+
+      
+    </script>
+</body>
+</html>
