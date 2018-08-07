@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            border:0;
+        }
+        html,body{
+            width:100%;
+            height:100%;
+            display: flex;
+            justify-content: center;
+            align-items:center;
+        }
+        canvas{
+            border:1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+     <canvas width="1100" height="800">
+        您的浏览器不支持canvas
+     </canvas>
+      
+     <script>
+         let canvas = document.querySelector('canvas')
+         let ctx = canvas.getContext('2d')
+         let ballAry = []
+
+         function initDraw(){
+            let first = true;
+            for(let i = 0; i < 15; i++){
+                let ball = new Ball(ctx,canvas.width,canvas.height);
+                let length = ballAry.length;
+                if(!first){
+                    let isOverlap = false;
+                    for(let s = 0;s<length;s++){
+                        if(checkBall(ball,ballAry[s])){
+                            isOverlap = true;
+                            break;
+                        }
+                    }
+                    if(!isOverlap){
+                        ballAry.push(ball)
+                    }
+                }else{
+                    ballAry.push(ball)
+                    first = false;
+                }
+                
+              
+            }
+         }
+
+         function random(min,max){ // 获取区间随机整数
+             return Math.floor( (max-min)*Math.random()+min)
+
+         }
+
+
+          function Ball(ctx,canvasWidth,canvasHeight){
+             this.radius = Math.floor(random(15,35))  // 小球半径
+             this.x = random(35,canvas.width - 35) // 小球x轴初始坐标
+             this.y = random(35,canvas.height - 35) // 小球y轴初始坐标
+             this.color = "rgba("+random(0,255) + "," + random(0,255)+","+ random(0,255) + ",0.8)" // 小球颜色
+             this.vx = random(1,5) // 小球速度
+             this.vy = random(1,5) // 小球速度
+             this.bounce = 1 // 墙壁反弹系数
+             this.mass = this.radius*6 // 模拟小球质量，与半径成正比
+             this.ctx = ctx;
+             this.canvasWidth = canvasWidth;
+             this.canvasHeight = canvasHeight;
+          }
+         
+          Ball.prototype.draw = function(){
+            this.ctx.beginPath();
+            this.ctx.arc(this.x,this.y,this.radius,0,2*Math.PI);
+            this.ctx.fillStyle = this.color
+            this.ctx.fill();
+            this.ctx.closePath();
+          }
+          Ball.prototype.updataPosition = function(){
+             this.x += this.vx
+             this.y += this.vy
+          }
+          Ball.prototype.checkWall = function(){ // 与墙碰撞检测
+            
+            // 上下碰撞
+            if(this.y >= this.canvasHeight - this.radius){ 
+                this.y = this.canvasHeight  - this.radius
+                this.vy *= -this.bounce; 
+            }else if(this.y <= this.radius){
+                this.y = this.radius
+                this.vy *= -this.bounce
+            }
+
+            // 左右碰撞
+            if(this.x >= this.canvasWidth  - this.radius){
+                this.x = this.canvasWidth - this.radius
+                this.vx *= -this.bounce
+            }else if(this.x <= this.radius){
+                this.x = this.radius
+                this.vx *= -this.bounce
+            }
+          }
+
+          function checkBall(ball1,ball2){ // 球与球碰撞检测
+            let lineLength = Math.sqrt((ball1.x-ball2.x)*(ball1.x-ball2.x)+(ball1.y-ball2.y)*(ball1.y-ball2.y))
+            // console.log(lineLength < ball1.radius+ball2.radius)
+            // debugger
+            if(lineLength < ball1.radius+ball2.radius){ // 碰撞
+                return true
+            }
+          }
+
+          function ballSpeed(ball1,ball2){  // 小球碰撞后速度的计算
+
+
+                // 获取两个小球的各自速度率 (水平方向速度和垂直方向速度开平方)
+                let speed1 = Math.sqrt(ball1.vx*ball1.vx + ball1.vy*ball1.vy)  
+                let speed2 = Math.sqrt(ball2.vx*ball2.vx + ball2.vy*ball2.vy)  
+
+              
+                
+                //获取两个小球的垂直和水平距离
+                let dx = ball1.x - ball2.x;
+			    let dy = ball1.y - ball2.y;
+
+                //计算两球的球心两线与水平方向(x轴逆时针)的角度
+                let collisionAngle = Math.atan2(dy,dx);
+
+                
+                 // 计算两个小球碰撞前运动方向,水平方向夹角(也是与x轴逆时针夹角)
+                 let  direction1 = Math.atan2(ball1.vy,ball1.vx)
+                 let  direction2 = Math.atan2(ball2.vy,ball2.vx)
+
+                 //小球碰撞后速度会有一个平行与球心连线的速度和垂直与球心连线的速度。
+                 //我们只改变的时平行与球心的速度，垂直的速度不会改变
+                 let after_vx1 = speed1 * Math.cos(collisionAngle - direction1)  // 水平方向
+                 let after_vy1 = speed1 * Math.cos(collisionAngle - direction1)  // 垂直方向
+                 let after_vx2 = speed2 * Math.cos(collisionAngle - direction2)  // 水平方向
+                 let after_vy2 = speed2 * Math.cos(collisionAngle - direction2)  // 垂直方向
+
+
+                // 碰撞后的速度 根据动量守恒和能量守恒
+
+                let after_speed_x1 = ((ball1.mass - ball2.mass)*after_vx1 + 2*ball2.mass*after_vx2)/(ball1.mass+ball2.mass)
+                let after_speed_x2 = ((ball2.mass-ball1.mass) + 2*ball1.mass*after_vx1)/(ball1.mass+ball2.mass)
+                
+                // 垂直速率保持不表
+                let after_speed_y1 = after_vy1
+                let after_speed_y2 = after_vy2
+
+
+
+            
+                // 分别计算两个小球x轴和y轴的速度
+                ball1.vx = Math.cos(collisionAngle - direction1) * after_speed_x1 + Math.cos() * after_speed_y1
+                ball1.vy = Math.sin(direction)*after_speed1
+                ball2.vx = Math.cos(direction)*after_speed2
+                ball2.vy = Math.sin(direction)*after_speed2
+                
+                ball1.x += ball1.vx;
+                ball1.y += ball1.vy;
+                ball2.x += ball2.vx;
+                ball2.y += ball2.vy;
+          }
+
+          
+
+          function updata(){
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let len = ballAry.length
+             for(let i=0; i<len; i++){
+                ballAry[i].updataPosition()
+                ballAry[i].checkWall()
+               for(let s=i+1; s<len; s++){
+                   if(checkBall(ballAry[i],ballAry[s])){
+                       ballSpeed(ballAry[i],ballAry[s])
+                   }
+               }
+
+                ballAry[i].draw()
+             }
+             requestAnimationFrame(updata)
+          }
+         initDraw()
+         updata()
+
+
+          
+
+     </script>
+</body>
+</html>

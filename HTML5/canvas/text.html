@@ -1,140 +1,220 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+	<meta charset="UTF-8">
+	<title>collosion</title>
+	<style type="text/css">
+	body{margin:0;}
+	canvas{box-shadow: 0 0 40px black}
+	</style>
 </head>
-<body>
-    <canvas id="canvas"></canvas>
-    <script>
+<body >
+	<canvas id="canvas" style="display:block;"></canvas>
+	<script type="text/javascript">
+		var canvas = document.getElementById("canvas");
+		var ctx = canvas.getContext("2d");
+
+		canvas.width = document.documentElement.clientWidth;
+		canvas.height = document.documentElement.clientHeight;
+
+		var balls=[];
+
+		var img = new Image();
+		img.src = "https://raw.githubusercontent.com/GoldTao/canvas-demo/master/canvas%E7%A2%B0%E6%92%9E/images/%E6%B5%B7%E6%BB%A9.jpg";
         
-        var canvas = document.getElementById('canvas'),
-    ctx = canvas.getContext('2d'),
-    max_height = $(window).height(),
-    max_width = $(window).width(),
-    spaceHeight = max_height,
-    spaceWidth = max_width,
-    acc = 9.81,
-    dt = 1,
-    balls = {},
-    ballIndex = 0,
-    bounce = 0.7,
-    surfaceResistance = 0.999;
+		img.onload=function(){
+			for (var i = 0; i < 20; i++) {
+				var placeOk = false;
+				while(!placeOk){
+					var ball = new Ball();
+					
+					// 排除两个球在生成时发生重叠而产生bug
+					if(canStart(ball)){
+						placeOk = true;
+					}
+				}
+				balls.push(ball);				
+			}
+			
+			setInterval(function(){
+				drawScreen()
+			},15)		
+		}
 
-canvas.width = max_width;
-canvas.height = max_height;
-ctx.fillStyle = '#2F2B27';
+		// 是否正确生成了小球的位置
+		function canStart(ball){
+			var start = true;
+			for (var i = 0; i < balls.length; i++) {
+				if(hitTestCircle(ball,balls[i])){
+					start = false;
+				}
+			}
+			return start;
+		}
 
-$(window).resize(function() {
-    max_width = window.innerWidth;
-    max_height = window.innerHeight;
-    canvas.width = max_width;
-    canvas.height = max_height;
-});
 
-var current = [],
-    end = [],
-    trigger;
+		// 绘制屏幕主函数
+		function drawScreen(){
+			// 数据更新
+			upDate();
+			testWall();
+			collide();
+			// 绘制
+			render();
+		}
 
-$(document).mousedown(function(e) {
-    trigger = true;
-    end = [e.pageX, e.pageY];
-});
-$(document).mousemove(function(e) {
-    current = [e.pageX, e.pageY];
-});
-$(document).mouseup(function(e) {
-    if (trigger) {
-        new Ball(current, [(end[0] - current[0]) / 10, (end[1] - current[1]) / 10], [0, acc], 20);
-    }
-    trigger = false;
-});
+		// 不考虑碰撞,球的每一帧的变化
+		function upDate(){
+			for (var i = 0; i < balls.length; i++) {
+				var ball = balls[i];
+				ball.x = ball.x + ball.vx;
+				ball.y = ball.y + ball.vy;
+			}
+		}
 
-function aimArrow(start, stop) {
-    if (trigger) {
-        ctx.beginPath();
-        ctx.moveTo(start[0], start[1]);
-        ctx.lineTo(stop[0], stop[1]);
-        ctx.stroke();
-    }
-}
+		// 球与墙的碰撞检测 和 速度变化
+		function testWall(){
+			balls.forEach(function(element){
+				var ball = element;
+				if(ball.x<=ball.r){
+					ball.x = ball.r;
+					ball.vx = -ball.vx;
+				}
+				if(ball.x >= canvas.width - ball.r){
+					ball.x = canvas.width - ball.r;
+					ball.vx = -ball.vx;
+				}
+				if(ball.y <= ball.r){
+					ball.y = ball.r;
+					ball.vy = -ball.vy;
+				}
+				if(ball.y >= canvas.height - ball.r){
+					ball.y = canvas.height -ball.r;
+					ball.vy = -ball.vy;
+				}	
+			})
+		}
 
-function Ball(position, velocity, acceleration,radius) {
-    this.position = position;
-    this.velocity = velocity;
-    this.acceleration = acceleration;
-    this.radius = radius;
+		// 球与球的 碰撞检测 与 速度变化
+			// 两个球是否碰撞
+		function hitTestCircle(ball1,ball2){
+			var hit = false;
+			var dis = Math.sqrt((ball1.x-ball2.x)*(ball1.x-ball2.x)+(ball1.y-ball2.y)*(ball1.y-ball2.y));
+			if(dis < ball1.r+ball2.r){
+				hit = true;
+			}
+			return hit;
+		}
+			// 遍历所有球的碰撞
+		function collide(){
+			var ball;
+			var testball;
+			for (var i = 0; i < balls.length; i++) {
+				ball = balls[i];
+				for(var j = i+1; j<balls.length;j++){
+					testball = balls[j];
+					if(hitTestCircle(ball,testball)){
+						collideBalls(ball,testball)
+					}
+				}
+			}
+		}
 
-    ballIndex++;
-    balls[ballIndex] = this;
-    this.Id = ballIndex;
+		// 碰撞之后的速度变化
+		function collideBalls(ball1,ball2){
 
-    this.calcAcceleration = function() {
-        this.acceleration[1] = acc / 20;
-    }
-    this.calcVelocity = function() {
-        this.velocity[0] += this.acceleration[0];
-        this.velocity[1] += this.acceleration[1];
+			// 获取两个小球球心的水平距离和垂直距离
+			var dx = ball1.x - ball2.x;
+			var dy = ball1.y - ball2.y;
+	 		
+	 		// 计算球心连线与水平方向的夹角
+			var collisionAngle = Math.atan2(dy, dx);
+	 		
+	 		// 计算两个小球的速率
+			var speed1 = Math.sqrt(ball1.vx * ball1.vx + ball1.vy * ball1.vy);
+			var speed2 = Math.sqrt(ball2.vx * ball2.vx + ball2.vy * ball2.vy);
+	 		
+	 		// 计算两个小球在碰撞之前的运动方向,也是与水平方向的夹角
+			var direction1 = Math.atan2(ball1.vy, ball1.vx);
+			var direction2 = Math.atan2(ball2.vy, ball2.vx);
+	 		
+	 		// vx_1 vx_2 是小球在平行于球心连线方向的分速度 
+	 		// vy_2 vy_2 是小球在垂直于球心连线方向的分速度
+	 		// 碰撞的速度变化,只用考虑平行方向的分速度,而不用考虑垂直方向的分速度
+			var vx_1 = speed1 * Math.cos(direction1 - collisionAngle);
+			var vy_1 = speed1 * Math.sin(direction1 - collisionAngle);
+			var vx_2 = speed2 * Math.cos(direction2 - collisionAngle);
+			var vy_2 = speed2 * Math.sin(direction2 - collisionAngle);
+	 		
+	 		// 动量定理和能量守恒,计算平行于球心连线方向的分速度 在碰撞之后的速度变化
+			var final_vx_1 = ((ball1.mass - ball2.mass) * vx_1 + (ball2.mass + ball2.mass) * vx_2)/(ball1.mass + ball2.mass);
+			var final_vx_2 = ((ball1.mass + ball1.mass) * vx_1 + (ball2.mass - ball1.mass) * vx_2)/(ball1.mass + ball2.mass);
+	 		//在垂直于球心连线方向的分速度 保持不变
+			var final_vy_1 = vy_1;
+			var final_vy_2 = vy_2;
+	 		
+	 		// 最后,计算好了分速度的变化后,再把速度回归到canvas的 x方向 和 y方向
+			ball1.vx = Math.cos(collisionAngle) * final_vx_1 + Math.cos(collisionAngle + Math.PI/2) * final_vy_1;
+			ball1.vy = Math.sin(collisionAngle) * final_vx_1 + Math.sin(collisionAngle + Math.PI/2) * final_vy_1;
+			ball2.vx = Math.cos(collisionAngle) * final_vx_2 + Math.cos(collisionAngle + Math.PI/2) * final_vy_2;
+			ball2.vy = Math.sin(collisionAngle) * final_vx_2 + Math.sin(collisionAngle + Math.PI/2) * final_vy_2;
+	 		
+	 		
+			ball1.x += ball1.vx;
+			ball1.y += ball1.vy;
+			ball2.x += ball2.vx;
+			ball2.y += ball2.vy;
+		}
 
-    }
-    this.calcPosition = function() {
-        this.position[0] += this.velocity[0];
-        this.position[1] += this.velocity[1];
-    }
-    this.checkWallColisions = function() {
-        if (this.position[1] >= spaceHeight - this.radius) {
-            this.position[1] = spaceHeight - this.radius;
-            this.velocity[1] *= -bounce;
-            if (this.velocity[1] > -0.1 && this.velocity[1] < 0.1) {
-                this.velocity[1] = 0;
-                this.velocity[0] *= surfaceResistance;
-                if (Math.abs(this.velocity[0]) <= 0.1) {
-                    this.velocity[0] = 0;
-                }
-            }
 
-        } else if (this.position[1] <= this.radius) {
-            this.position[1] = this.radius;
-            this.velocity[1] *= -bounce;
-        }
+		// 绘制函数
+		function render() {
+			ctx.clearRect(0,0,canvas.width,canvas.height);
 
-        if (this.position[0] <= 0 + this.radius) {
-            this.position[0] = 0 + this.radius;
-            this.velocity[0] *= -bounce;
-        } else if (this.position[0] >= spaceWidth - this.radius) {
-            this.position[0] = spaceWidth - this.radius;
-            this.velocity[0] *= -bounce;
-        }
-    }
-    this.updatePosition = function() {
-        this.calcAcceleration();
-        this.checkWallColisions();
-        this.calcVelocity();
-        this.calcPosition();
-    }
-    this.Draw = function() {
-        ctx.beginPath();
-        ctx.arc(this.position[0], this.position[1], this.radius, 0, Math.PI * 2, true);
-        ctx.fill();
-        ctx.closePath();
-    }
-}
+			// 画背景
+			ctx.save();
+			ctx.beginPath();
+			ctx.drawImage(img,0,0,canvas.width,canvas.height);
+			ctx.restore();
 
-function Updater() {
-    ctx.clearRect(0, 0, max_width, max_height);
-    aimArrow(end, current);
-    for (var i in balls) {
-        balls[i].updatePosition();
-        balls[i].Draw();
-    }
-    requestAnimationFrame(Updater);
-}
+			// 绘制球
+			var ball;
+			for (var i =0; i <balls.length; i++) {
+				ball = balls[i];
+				ball.draw()
+			}			
+		}
 
-Updater();
-        
-    </script>
+		// 构造函数
+		function Ball(){
+			var R = rand(0,255);
+			var G = rand(0,255);
+			var B = rand(0,255);
+
+			this.x=rand(30,canvas.width-30);
+			this.y=rand(30,canvas.height-30);
+			this.r=rand(20,80);
+			this.color="rgba("+R+","+G+","+B+",0.7)";
+			this.vx=(Math.random()*2-1)*5;
+			this.vy=(Math.random()*2-1)*5;
+			this.mass = this.r*8;	
+		}
+
+		Ball.prototype.draw=function(){
+			ctx.save();
+			ctx.beginPath();
+			ctx.fillStyle = this.color;
+			ctx.arc(this.x,this.y,this.r,0,Math.PI*2,false);
+			ctx.fill();
+			ctx.restore();
+		}
+
+		// 取随机整数
+		function rand(min,max){
+			return Math.floor( (max-min)*Math.random()+min)
+		}
+
+
+	</script>
 </body>
 </html>
