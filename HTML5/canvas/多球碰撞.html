@@ -29,6 +29,7 @@
      </canvas>
       
      <script>
+         console.log(Math.PI)
          let canvas = document.querySelector('canvas')
          let ctx = canvas.getContext('2d')
          let ballAry = []
@@ -85,30 +86,8 @@
             this.ctx.fill();
             this.ctx.closePath();
           }
-          Ball.prototype.updataPosition = function(){
-             this.x += this.vx
-             this.y += this.vy
-          }
-          Ball.prototype.checkWall = function(){ // 与墙碰撞检测
-            
-            // 上下碰撞
-            if(this.y >= this.canvasHeight - this.radius){ 
-                this.y = this.canvasHeight  - this.radius
-                this.vy *= -this.bounce; 
-            }else if(this.y <= this.radius){
-                this.y = this.radius
-                this.vy *= -this.bounce
-            }
-
-            // 左右碰撞
-            if(this.x >= this.canvasWidth  - this.radius){
-                this.x = this.canvasWidth - this.radius
-                this.vx *= -this.bounce
-            }else if(this.x <= this.radius){
-                this.x = this.radius
-                this.vx *= -this.bounce
-            }
-          }
+          
+      
 
           function checkBall(ball1,ball2){ // 球与球碰撞检测
             let lineLength = Math.sqrt((ball1.x-ball2.x)*(ball1.x-ball2.x)+(ball1.y-ball2.y)*(ball1.y-ball2.y))
@@ -142,10 +121,10 @@
 
                  //小球碰撞后速度会有一个平行与球心连线的速度和垂直与球心连线的速度。
                  //我们只改变的时平行与球心的速度，垂直的速度不会改变
-                 let after_vx1 = speed1 * Math.cos(collisionAngle - direction1)  // 水平方向
-                 let after_vy1 = speed1 * Math.cos(collisionAngle - direction1)  // 垂直方向
-                 let after_vx2 = speed2 * Math.cos(collisionAngle - direction2)  // 水平方向
-                 let after_vy2 = speed2 * Math.cos(collisionAngle - direction2)  // 垂直方向
+                 let after_vx1 = speed1 * Math.cos(direction1 - collisionAngle)  // 水平方向
+                 let after_vy1 = speed1 * Math.cos(direction1 - collisionAngle)  // 垂直方向
+                 let after_vx2 = speed2 * Math.cos(direction2 - collisionAngle)  // 水平方向
+                 let after_vy2 = speed2 * Math.cos(direction2 - collisionAngle)  // 垂直方向
 
 
                 // 碰撞后的速度 根据动量守恒和能量守恒
@@ -153,7 +132,7 @@
                 let after_speed_x1 = ((ball1.mass - ball2.mass)*after_vx1 + 2*ball2.mass*after_vx2)/(ball1.mass+ball2.mass)
                 let after_speed_x2 = ((ball2.mass-ball1.mass) + 2*ball1.mass*after_vx1)/(ball1.mass+ball2.mass)
                 
-                // 垂直速率保持不表
+                // 垂直速率保持不变
                 let after_speed_y1 = after_vy1
                 let after_speed_y2 = after_vy2
 
@@ -161,10 +140,10 @@
 
             
                 // 分别计算两个小球x轴和y轴的速度
-                ball1.vx = Math.cos(collisionAngle - direction1) * after_speed_x1 + Math.cos() * after_speed_y1
-                ball1.vy = Math.sin(direction)*after_speed1
-                ball2.vx = Math.cos(direction)*after_speed2
-                ball2.vy = Math.sin(direction)*after_speed2
+                ball1.vx = Math.cos(collisionAngle) * after_speed_x1 + Math.cos(collisionAngle + Math.PI/2) * after_speed_y1
+                ball1.vy = Math.sin(collisionAngle) * after_speed_x1 + Math.cos(collisionAngle + Math.PI/2) * after_speed_y1
+                ball2.vx = Math.cos(collisionAngle) * after_speed_x2 + Math.cos(collisionAngle + Math.PI/2) * after_speed_y2
+                ball2.vy = Math.sin(collisionAngle) * after_speed_x2 + Math.cos(collisionAngle + Math.PI/2) * after_speed_y2
                 
                 ball1.x += ball1.vx;
                 ball1.y += ball1.vy;
@@ -173,13 +152,38 @@
           }
 
           
+        function updataPosition(ball){
+            ball.x += ball.vx
+            ball.y += ball.vy
+          }
+         function checkWall(ball){ // 与墙碰撞检测
+            
+            // 上下碰撞
+            if(ball.y >= ball.canvasHeight - ball.radius){ 
+                ball.y = ball.canvasHeight  - ball.radius
+                ball.vy = -ball.vx
+            }else if(ball.y <= ball.radius){
+                ball.y = ball.radius
+                ball.vy = -ball.vx
+            }
+
+            // 左右碰撞
+            if(ball.x >= ball.canvasWidth  - ball.radius){
+                ball.x = ball.canvasWidth - ball.radius
+                ball.vx = -ball.vx
+            }else if(ball.x <= ball.radius){
+                ball.x = ball.radius
+                ball.vx = -ball.vx
+            }
+          }
+
 
           function updata(){
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             let len = ballAry.length
              for(let i=0; i<len; i++){
-                ballAry[i].updataPosition()
-                ballAry[i].checkWall()
+                updataPosition(ballAry[i])
+                checkWall(ballAry[i])
                for(let s=i+1; s<len; s++){
                    if(checkBall(ballAry[i],ballAry[s])){
                        ballSpeed(ballAry[i],ballAry[s])
