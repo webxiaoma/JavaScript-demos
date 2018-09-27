@@ -1,9 +1,6 @@
-# 目录
 
+# JavaScript 练习
 
+![webxiaoma](http://webxiaoma.com/img/manong.jpg)
 
-
-### 一、设计模式
-
-1. [订阅发布者模式](https://github.com/webxiaoma/JavaScript-demos/tree/master/design_mode/subscribe_publish)
-
+[仓库相关博客文章](http://webxiaoma.com/javascript/)

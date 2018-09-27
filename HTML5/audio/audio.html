@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>H5音频操作</title>
+    <style>
+      *{
+          padding:0;
+          margin:0;
+      }
+      body{
+          width:100%;
+          height:100vh;
+          text-align: center;
+      }
+      #audioWrap{
+          margin:20px;
+      }
+      button{
+          padding:5px 10px;
+          margin:10px 0;
+          cursor: pointer;
+      }
+    </style>
+</head>
+<body>
+    <h1>音频操作</h1>
+   <div id="audioWrap">
+        <audio controls>
+            <source src="http://sc1.111ttt.cn/2018/1/03/13/396131227447.mp3" >
+            您的浏览器不支持 audio 元素。
+        </audio>
+        <!-- 
+            autoplay 自动播放已经加载的的媒体文件，或查询是否已设置为autoplay
+            loop 将媒体文件设置为循环播放，或查询是否已设置为loop
+            currentTime 以s为单位返回从开始播放到目前所花的时间，也可设置 currentTime的值来跳转到特定位置
+            controls 显示或者隐藏用户控制界面
+            volume 在0.0到1.0间设置音量值,或查询当前音量值
+            muted 设置是否静音
+            autobuffer 媒体文件播放前是否进行缓冲加载，如果设置了autoplay，则忽略此特性
+         -->
+   </div>
+
+   <h3 id="status">音频状态：<span>无状态</span></h3>
+   <h3 id="status1">总时长：<span>暂无</span></h3>
+   <h3 id="status2">音频地址：<span>暂无</span></h3>
+   <h3 id="status3">播放时间：<span>无状态</span></h3>
+   <h3 id="status4">音量状态：<span>无状态</span>（0至1之间）</h3>
+   <h3 id="status5">是否循环播放：<span>否</span></h3>
+   <h3 id="status6">音乐面版状态：<span>显示</span></h3>
+   <h3 id="status7">静音状态：<span>关闭</span></h3>
+   
+   <div style="margin-top:20px;">
+        <button onclick="audio1()">开始</button>
+        <button onclick="audio2()">暂停</button>
+        <button onclick="audio3()">重放</button>
+        <button onclick="muted()">静音</button>
+        <button onclick="addSpeed()">快进 +5s</button>
+        <button onclick="reduceSpeed()">快退 -5s</button>
+        <button onclick="addVoice()">加音量+</button>
+        <button onclick="reduceVoice()">减音量-</button>
+        <button onclick="loop()">是否循环播放</button>
+        <button onclick="controls()">显示隐控制界面</button>
+   </div>
+ 
+
+   <script>
+       let audio = document.querySelector('#audioWrap audio')
+       let status = document.querySelector("#status span")
+        function audio1(){ // 开始
+            audio.play()
+        }
+
+        function audio2(){ // 暂停
+            audio.pause()
+        }
+        function audio3(){ // 重新播放
+            audio.currentTime = 0;
+            audio.play();
+        }
+        function muted(){ // 是否显示隐藏
+            audio.muted = !audio.muted;
+            //是否循环播放
+            document.querySelector("#status7 span").innerHTML = audio.muted?"开启静音":"关闭静音"
+        }
+        function addSpeed(){ // 快进
+            audio.currentTime += 5;
+        }
+        function reduceSpeed(){ // 快退
+            audio.currentTime -= 5;
+        }
+        function addVoice(){ // 增大音量 volum 值在 0 —— 1之间
+            let volume = audio.volume
+            audio.volume = volume+0.2>=1?1:volume+=.2;
+            //  音频音量
+        }
+        function reduceVoice(){ // 减小音量
+            let volume = audio.volume
+            audio.volume = volume-0.2<=0?0:volume-=.2;
+            //  音频音量
+        }
+        function loop(){ // 设置循环播放
+            audio.loop = !audio.loop;
+            //是否循环播放
+            document.querySelector("#status5 span").innerHTML = audio.loop?"是":"否"
+        }
+        function controls(){ // 是否显示隐藏
+            audio.controls = !audio.controls;
+            //是否循环播放
+            document.querySelector("#status6 span").innerHTML = audio.controls?"显示":"隐藏"
+        }
+
+
+        // 多媒体事件
+        audio.onplay = function(){
+            console.log("播放时触发：onplay")
+             // 音频时长
+             document.querySelector("#status1 span").innerHTML = audio.duration + "秒"
+             //音频地址
+             document.querySelector("#status2 span").innerHTML = audio.currentSrc
+             //  音频音量
+             document.querySelector("#status4 span").innerHTML = audio.volume
+        }
+        audio.onpause = function(){
+            console.log("暂停时触发：onpause")
+        }
+        audio.onloadstart = function(){
+            console.log("加载媒体资源时运行：onloadstart")
+        }
+        audio.onplaying = function(){ //
+            status.innerHTML = "播放中"
+            console.log("播放中：onplaying")
+        }
+        audio.onratechange = function(){ //
+            console.log("播放速度改变了")
+        }
+        audio.onwaiting = function(){ //
+            console.log("已暂停继续播放时触发：onwaiting")
+        }
+        audio.ontimeupdate = function(event){ //
+             // 音频时长
+            document.querySelector("#status3 span").innerHTML = event.target.currentTime + "秒"
+            console.log("改变播放位置时触发：ontimeupdateNew")
+        }
+        audio.onvolumechange = function(event){ //
+            console.log(event)
+           
+            document.querySelector("#status4 span").innerHTML =  event.target.volume.toFixed(1)
+            console.log("声音改变时触发：onvolumechange")
+        }
+        audio.onended = function(){ //
+            status.innerHTML = "播放完成"
+            console.log("播放完时触发：onended")
+        }
+
+
+
+
+   </script>
+</body>
+</html>
