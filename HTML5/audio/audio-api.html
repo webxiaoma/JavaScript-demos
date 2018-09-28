@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="./audio-api.css">
+    <title>audio API</title>
+</head>
+<body>
+    <script>
+    
+       var audioURL = 'http://sc1.111ttt.cn/2018/1/03/13/396131227447.mp3';
+       var audioCtx = new (AudioContext || webkitAudioContext)();
+       console.log(audioCtx.currentTime )
+       
+       var oscillator = audioCtx.createOscillator(); // 创建音调节器(振荡器)
+      console.log(oscillator)
+
+         oscillator.type = 'sine';    //设置波形，可选值：'square','triangle','sawtooth','sine'
+         oscillator.frequency.value = 90;    //设置频率
+      
+         var gainNode = audioCtx.createGain();     //创建音量控制节点
+         console.log(gainNode)
+
+        gainNode.gain.setTargetAtTime(6, audioCtx.currentTime + 1,0.001)
+
+
+ 
+        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.01);
+
+        oscillator.connect(gainNode);
+
+        gainNode.connect(audioCtx.destination);
+
+         oscillator.start(audioCtx.currentTime);
+
+        gainNode.gain.exponentialRampToValueAtTime(0.03 , audioCtx.currentTime + 1);
+
+        // 1秒后停止声音 
+         oscillator.stop(audioCtx.currentTime + 10);
+    
+    </script>
+</body>
+</html>     
