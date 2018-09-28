@@ -8,6 +8,29 @@
     <title>audio API</title>
 </head>
 <body>
+    <h1>audio API 钢琴</h1>
+    <div class="piano">
+        <div class="white">
+           <div class="have-black"></div>
+           <div class="have-black"></div>
+           <div></div>
+           <div class="have-black"></div>
+           <div></div>
+           <div></div>
+           <div></div>
+           <div></div>
+           <div></div>
+           <div></div>
+           <div></div>
+           <div></div>
+           <div></div>
+           <div></div>
+           <div></div>
+           <div></div>
+           <div></div>
+           <div></div>
+        </div>
+    </div>
     <script>
     
        var audioURL = 'http://sc1.111ttt.cn/2018/1/03/13/396131227447.mp3';
@@ -18,12 +41,12 @@
       console.log(oscillator)
 
          oscillator.type = 'sine';    //设置波形，可选值：'square','triangle','sawtooth','sine'
-         oscillator.frequency.value = 90;    //设置频率
+         oscillator.frequency.value = 190;    //设置频率
       
          var gainNode = audioCtx.createGain();     //创建音量控制节点
          console.log(gainNode)
 
-        gainNode.gain.setTargetAtTime(6, audioCtx.currentTime + 1,0.001)
+        // gainNode.gain.setTargetAtTime(6, audioCtx.currentTime + 1,0.001)
 
 
  
