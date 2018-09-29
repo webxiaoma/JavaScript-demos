@@ -16,54 +16,161 @@
            <div></div>
            <div class="have-black"></div>
            <div></div>
+           <div class="have-black"></div>
+           <div></div>
+           <div class="have-black"></div>
            <div></div>
            <div></div>
+           <div class="have-black"></div>
            <div></div>
            <div></div>
+           <div class="have-black"></div>
+           <div class="have-black"></div>
            <div></div>
-           <div></div>
-           <div></div>
-           <div></div>
-           <div></div>
-           <div></div>
-           <div></div>
-           <div></div>
+           <div class="have-black"></div>
            <div></div>
         </div>
     </div>
+    <div class="msg">
+        <p class="volumeP">目前音量为：<span>0.5</span></p>
+        <p class="volumeTwo">录制状态：<span>暂无</span></p>
+        <p class="volumeThree">录制数量：<span>0</span></p>
+        <p class="volumeFour">播放进度：<span>0</span></p>
+    </div>
+    <div class="btn">
+       <div>
+          <button onclick="changeVolume(true)">音量增加+</button>
+          <button onclick="changeVolume(false)">音量减小-</button>
+          <button onclick="remember(this)">录制</button>
+          <button onclick="playStart()">播放</button>
+          <button onclick="clearRem()">清空录制</button>
+       </div>
+    </div>
     <script>
-    
-       var audioURL = 'http://sc1.111ttt.cn/2018/1/03/13/396131227447.mp3';
-       var audioCtx = new (AudioContext || webkitAudioContext)();
-       console.log(audioCtx.currentTime )
+         let volumeSpan = document.querySelector('.volumeP span') //录制音量
+         let volumeTwo = document.querySelector('.volumeTwo span')  //录制状态
+         let volumeThree = document.querySelector('.volumeThree span') //录制数量
+         let volumeFour = document.querySelector('.volumeFour span') //播放进度
+
+      // 音乐谱
+       var musicData = {
+            // 音乐频率
+           frequency:[196.00, 220.00, 246.94, 261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25, 587.33, 659.25, 698.46, 783.99, 880.00, 987.77, 1046.50],
+           index:0, // 按键索引
+           volume : 0.5, // 默认0.5
+           isTranscribe:false, // 是否开启录制
+           rememberFrequency:[], // 记录音频
+           playTimeId:null, // 定时器id
+           sum:0, // 播放进度
+           playStart:false, // 播放状态
+       }
+
+       //创建音频接口上下文
+        var audioCtx = new (AudioContext || webkitAudioContext)();
+
+        function createMusic(data,index){ // 创建音乐
+            /**** 设置音调 ****/
+                    var oscillator = audioCtx.createOscillator(); // 创建音调节器(振荡器)
+                    oscillator.type = 'sine';    //设置波形，可选值：'square','triangle','sawtooth','sine'
+                    oscillator.frequency.value = data.frequency[index];    //设置频率
+
+            /***创建音量控制节点**/
+                    var gainNode = audioCtx.createGain();    
+                    // gainNode.gain.setTargetAtTime(6, audioCtx.currentTime + 1,0.001)
+                    gainNode.gain.setValueAtTime(0, audioCtx.currentTime);// 先把当前音量设为0 
+
+                    // 0.01秒时间内音量从刚刚的0变成0.5，线性变化  
+                    gainNode.gain.linearRampToValueAtTime(data.volume, audioCtx.currentTime + 0.01);
+
+            /***  将音量链接到振荡器  ***/
+                    oscillator.connect(gainNode);
+                    
+            /*** 将音量与设备关联 ***/
+                    gainNode.connect(audioCtx.destination);
+
+            /*** 开始播放声音 ***/
+                    oscillator.start(audioCtx.currentTime);
+                    
+                    // 1秒内将声音降低到 0.01
+                    gainNode.gain.exponentialRampToValueAtTime(0.01 , audioCtx.currentTime + 1);
+
+                    // 1秒后停止声音 
+                    oscillator.stop(audioCtx.currentTime + 1);
+        }
+         
+        let btnDiv = document.querySelectorAll(".piano .white>div")
+        let len = btnDiv.length
+        for(let i=0;i<len;i++){
+           btnDiv[i].onclick = function(){
+              musicData.index = i;
+              createMusic(musicData,i)
+
+                // 录制使用
+                if(musicData.isTranscribe){
+                   musicData.rememberFrequency.push(musicData.index)
+                   volumeThree.innerHTML = musicData.rememberFrequency.length;
+                }
+           }
+        }
+
+
+
+        // 音量控制
        
-       var oscillator = audioCtx.createOscillator(); // 创建音调节器(振荡器)
-      console.log(oscillator)
+         function changeVolume(type){
+            if(type){
+                musicData.volume = (musicData.volume>=1.2?1.2:Number(musicData.volume)+0.1).toFixed(1)
+            }else{
+                musicData.volume = (musicData.volume<=0?0:Number(musicData.volume)-0.1).toFixed(1)
+            }
+            
+            volumeSpan.innerHTML = musicData.volume
+           
+         }
 
-         oscillator.type = 'sine';    //设置波形，可选值：'square','triangle','sawtooth','sine'
-         oscillator.frequency.value = 190;    //设置频率
-      
-         var gainNode = audioCtx.createGain();     //创建音量控制节点
-         console.log(gainNode)
+        //  录制音乐
+        function remember(e){
+            musicData.isTranscribe = !musicData.isTranscribe;
+            volumeTwo.innerHTML = musicData.isTranscribe?"录制中":"暂停录制"
+            e.innerHTML = musicData.isTranscribe?"录制中":"暂停录制"
+        }
 
-        // gainNode.gain.setTargetAtTime(6, audioCtx.currentTime + 1,0.001)
+        // 播放录制音乐
 
+        function playStart(){
+            if(!musicData.rememberFrequency.length){
+               alert("请先录制音乐")
+               return
+            }
+            if(musicData.playStart){
+               return
+            }
+            musicData.sum = 0;
+            musicData.playStart = true // 播放中
+            musicData.playTimeId = setInterval(function(){
+                if(musicData.sum<musicData.rememberFrequency.length){
+                    createMusic(musicData,musicData.rememberFrequency[musicData.sum])
+                }else{
+                   clearInterval(musicData.playTimeId)
+                   musicData.playStart = false; //播放完成
+                }
+                volumeFour.innerHTML = musicData.sum;
+                musicData.sum++
 
- 
-        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.01);
+            },200)
+        }
 
-        oscillator.connect(gainNode);
+        //  清空录制
+        function clearRem(){
+            musicData.isTranscribe = !musicData.isTranscribe;
+            musicData.rememberFrequency = [];
+            volumeThree.innerHTML = musicData.rememberFrequency.length;
+            if(musicData.playTimeId){
+                clearInterval(musicData.playTimeId)
 
-        gainNode.connect(audioCtx.destination);
-
-         oscillator.start(audioCtx.currentTime);
-
-        gainNode.gain.exponentialRampToValueAtTime(0.03 , audioCtx.currentTime + 1);
-
-        // 1秒后停止声音 
-         oscillator.stop(audioCtx.currentTime + 10);
-    
+            }
+            volumeFour.innerHTML = 0;
+        }
     </script>
 </body>
 </html>     
