@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="./audio-api.css">
-    <title>audio API</title>
+    <title>audio API 钢琴</title>
 </head>
 <body>
-    <h1>audio API 钢琴</h1>
+    <h1>audio API 钢琴 <span></span></h1>
+    <h1>推荐使用：谷歌浏览器查看</h1>
     <div class="piano">
         <div class="white">
            <div class="have-black"></div>
@@ -47,6 +48,11 @@
        </div>
     </div>
     <script>
+
+         if(AudioContext){
+            document.querySelector('h1 span').innerHTML="抱歉你的浏览器暂不支持该功能"
+         }
+
          let volumeSpan = document.querySelector('.volumeP span') //录制音量
          let volumeTwo = document.querySelector('.volumeTwo span')  //录制状态
          let volumeThree = document.querySelector('.volumeThree span') //录制数量
@@ -73,7 +79,6 @@
                     var oscillator = audioCtx.createOscillator(); // 创建音调节器(振荡器)
                     oscillator.type = 'sine';    //设置波形，可选值：'square','triangle','sawtooth','sine'
                     oscillator.frequency.value = data.frequency[index];    //设置频率
-
             /***创建音量控制节点**/
                     var gainNode = audioCtx.createGain();    
                     // gainNode.gain.setTargetAtTime(6, audioCtx.currentTime + 1,0.001)

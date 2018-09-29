@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="./audio-aip-two.css">
+    <title>audio Web API 音频可视化</title>
+</head>
+<body>
+    <h1>audio Web API 音频可视化</h1>
+    <div>
+       <canvas id="canvas"></canvas>
+    </div>
+    <div class="btn">
+        <input type="file" id="update">
+        <button>播放</button>
+        <button>静音</button>
+    </div>
+    <script>
+
+             let input = document.getElementById("update")
+             let canvas = document.getElementById("canvas")
+
+              //创建音频接口上下文
+             let audioCtx = new (AudioContext || webkitAudioContext)();
+
+
+             // 上传音乐时触发
+             input.onchange = function(e){ 
+                 disposeFile(e.target.files[0])
+             }
+
+
+
+            // 处理音频文件，转化为arrayBuffer 二进制
+            function disposeFile(file){ 
+                let fs = new FileReader();
+                fs.readAsArrayBuffer(file)
+                fs.onload = function (e){
+                    // 解码音轨
+                    audioCtx.decodeAudioData(e.target.result,function(buf){
+                        createMusic(buf)
+                    },function(e){
+                        alert("文件解析出错")
+                    })
+                }
+               
+            }
+
+
+
+
+
+            
+            let analyser = audioCtx.createAnalyser()
+           
+
+
+            // 生成音乐
+            function createMusic(buf){
+                
+                //创建一个 `AudioBufferSourceNode` 对象，该对象可以处理包含在内的音频数据
+                let musicSource = audioCtx.createBufferSource()
+                musicSource.buffer = buf;
+
+                /***创建音量控制节点**/
+                var gainNode = audioCtx.createGain();    
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);// 先把当前音量设为0 
+                // 3秒时间内音量从刚刚的0变成0.5，线性变化  
+                gainNode.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 3);
+             
+                /***  将音量链接到音频  ***/
+                musicSource.connect(gainNode);
+              
+                musicSource.connect(analyser);
+                analyser.connect(gainNode);
+
+                  /*** 将音量与设备关联 ***/
+                  gainNode.connect(audioCtx.destination);
+
+
+                /*** 开始播放声音 ***/
+                musicSource.start(audioCtx.currentTime);
+
+            }
+                setInterval(() => {
+                    let array_length = analyser.frequencyBinCount;
+                    let arrayBuf = new Uint8Array(array_length);
+                    analyser.getByteFrequencyData(arrayBuf);	//将音频节点的数据拷贝到Uin8Array中
+                    console.log(arrayBuf)
+                    
+                }, 5000);
+             
+
+            // 创建画布
+              
+
+
+    </script>   
+</body>
+</html>
