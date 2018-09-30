@@ -8,3 +8,12 @@ body {
   height: 100vh;
   text-align: center;
 }
+body .canvasWrap {
+  width: 800px;
+  height: 500px;
+  margin: 20px auto;
+}
+body .canvasWrap #canvas {
+  width: 800px;
+  height: 500px;
+}
