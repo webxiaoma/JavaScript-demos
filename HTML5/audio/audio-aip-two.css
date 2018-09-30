@@ -13,7 +13,3 @@ body .canvasWrap {
   height: 500px;
   margin: 20px auto;
 }
-body .canvasWrap #canvas {
-  width: 800px;
-  height: 500px;
-}

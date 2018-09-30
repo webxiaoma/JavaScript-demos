@@ -16,7 +16,7 @@
         <button>静音</button>
     </div>
     <div class="canvasWrap">
-        <canvas id="canvas"></canvas>
+        <canvas id="canvas" width="800" height="500"></canvas>
     </div>
     <script>
 
@@ -25,6 +25,7 @@
 
               //创建音频接口上下文
              let audioCtx = new (AudioContext || webkitAudioContext)();
+             let analyser = audioCtx.createAnalyser()
 
 
              // 上传音乐时触发
@@ -49,7 +50,6 @@
                
             }
             
-            let analyser = audioCtx.createAnalyser()
 
             // 生成音乐
             function createMusic(buf){
@@ -98,18 +98,24 @@
            this.sum = 32 // 可视化的音频个数 不要超过64
            this.analyserAry = [] // 存储的每个音频条形图的高度
            this.aryX = [] // 存储的每个音频条形图的X轴位置
-           this.w = 15; // 每个条形图的宽度
-           this.h = 10; // 每个小长条的高度
-           this.width = canvas.offsetWidth; // canvas 真实宽度
-           this.height = canvas.offsetHeight; // canvas真实高度
+           this.w = 20 // 每个条形图的宽度
+           this.h = 5; // 每个小长条的高度
+           this.width = canvas.width; // canvas 真实宽度
+           this.height = canvas.height; // canvas真实高度
+           // 条形图渐变
+           this.grd = this.ctx.createLinearGradient(0, 150, 0, 500);
+           this.grd.addColorStop(0, "red");
+           this.grd.addColorStop(0.5, "yellow");
+           this.grd.addColorStop(1, "#00E800");
+
            this.init()
         }
 
         Cvs.prototype.init = function(){
             // 初始化时确定每个条形音频的X轴位置
-            let positionX = 20;
+            let positionX = 10;
             for(let i=0;i<this.sum;i++){
-                positionX = positionX + this.w + 5 // 这个5是每个条形图的间隔
+                positionX = positionX + this.w + 2 // 这个5是每个条形图的间隔
                 this.aryX.push(positionX)
             }
             this.draw()
@@ -124,43 +130,34 @@
         Cvs.prototype.disposeAnalyser = function(bufAry){ 
            let len = bufAry.length; // 音频数组长度
            let ary = []; 
-           for(let i=0;i<len;i+=16){
-               if(ary.length<this.sum){
-                 ary.push(bufAry[i])
-               }else{
-                   break;
-               }
+           for(let i=0;i<len;i+=32){
+               ary.push(bufAry[i])
            }
            this.analyserAry = ary
         }
 
         // 绘制canvas
         Cvs.prototype.draw = function(){
-
+            this.ctx.clearRect(0,0,this.width,this.height);
+            this.ctx.fillStyle = "#111";
+            this.ctx.fillRect(0, 0, this.width, this.height);
             for(let i = 0;i<this.sum;i++){ // 循环每个条形音频
-                let height = this.analyserAry[i]*5 // 每个条形音频的高度(加大十倍)
+                let height = this.analyserAry[i]*2 // 每个条形音频的高度(加大十倍)
                 //计算条形音频大概有多少个小长条(取整数) 小长条高度+间隔
-                let rectaSum = Math.floor(height/(this.h + 5)) 
-                let everyH = 0;
-
+                let rectaSum = Math.floor(height/(this.h + 2)) + 1 // 至少一个
+                let positionY = this.height;
                 for(let s=0;s<rectaSum;s++){
-
-                    this.rectangle(this.aryX[i],everyH) 
-                    everyH = everyH + this.h + 5
+                    positionY = positionY - this.h - 2
+                    this.rectangle(this.aryX[i],positionY) 
                 }
             }
-            this.ctx.fillstyle = "#111"
-            this.ctx.fillRect(0,0,this.width,this.height);
+           
         }
 
         // 绘制小长方格
         Cvs.prototype.rectangle = function(x,y){
-            this.ctx.beginPath();
-            this.ctx.arc(x,y,this.radius,0,2*Math.PI);
-            this.ctx.fillStyle = this.color
-            this.ctx.fill();
-            this.ctx.closePath();
-            console.log(x,y)
+            this.ctx.fillStyle= this.grd;
+            this.ctx.fillRect(x,y,this.w,this.h);
         }
 
 
@@ -169,15 +166,18 @@
         
    let newCvs = new Cvs(canvas);
 
-
-    setInterval(() => {
-        let array_length = analyser.frequencyBinCount;
-        let arrayBuf = new Uint8Array(array_length);
-        analyser.getByteFrequencyData(arrayBuf);	//将音频节点的数据拷贝到Uin8Array中
-        
-        newCvs.update(arrayBuf) // 处理arryBuff
-        newCvs.draw()
-    }, 2000);
+  
+   function animationFra(){
+    let array_length = analyser.frequencyBinCount;
+    let arrayBuf = new Uint8Array(array_length);
+    analyser.getByteFrequencyData(arrayBuf);	//将音频节点的数据拷贝到Uin8Array中
+    
+    newCvs.update(arrayBuf) // 处理arryBuff
+    newCvs.draw()
+    requestAnimationFrame(animationFra) 
+   }
+   animationFra()
+  
 
     </script>   
 </body>
