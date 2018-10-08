@@ -10,8 +10,8 @@
 <body>
     <div class="content">
         <h1>audio Web API 音频可视化</h1>
-        <button>播放歌曲一</button>
-        <button>播放歌曲二</button>
+        <button onclick="audioMusic(1)">播放歌曲一</button>
+        <button onclick="audioMusic(2)">播放歌曲二</button>
         <input type="file" id="update" value="选择本地音乐">
       
     </div>
@@ -24,113 +24,145 @@
     </div>
     <script>
 
-             let input = document.getElementById("update")
-             let canvas = document.getElementById("canvas")
-             let animateTiemId, // 定时器id
-             volume = 0.2   // 存储声音音量
-                             
-              //创建音频接口上下文
-             let audioCtx = new (AudioContext || webkitAudioContext)();
-
-             // 创建实时频率及时间信息对象
-             let analyser = audioCtx.createAnalyser()
+             let input = document.getElementById("update"),
+                 canvas = document.getElementById("canvas"),
+                 animateTiemId,// 定时器id
+                 Music = new CreateMusic(),  // 初始化音乐对象
+                 newCvs = new Cvs(canvas)  // 初始化canvas对象
 
 
-             // 上传音乐时触发
-             input.onchange = function(e){ 
-                 disposeFile(e.target.files[0])
-             }
+                // 上传音乐时触发
+                input.onchange = function(e){ 
+                    newCvs.waiting("正在解析文件...")
+                    Music.uploadMusic(e.target.files[0])
+                }
+                
+                //处理 audio 元素获得音频
+                function audioMusic(id){
+                    newCvs.waiting("正在解析文件...")
+                    Music.audioMusic(id)
+                }
 
 
+           // 音频处理
+            function CreateMusic(){
+                  //创建音频接口上下文
+                this.audioCtx = new (AudioContext || webkitAudioContext)();
+                // 创建实时频率及时间信息对象
+                this.analyser = this.audioCtx.createAnalyser()
+                /***创建音量控制节点**/
+                this.gainNode = this.audioCtx.createGain();    
+                // 存储处理后的音频
+                this.musicSource = null;
+                this.volume = 0.2; // 声音音量
+                
+            }
 
-            // 处理本地上传音频文件，转化为arrayBuffer 二进制 
-            function disposeFile(file){ 
+            // 上传音乐处理
+            CreateMusic.prototype.uploadMusic = function(file){
+                if(this.musicSource) this.stop();
+
+                let _that = this;
                 let fs = new FileReader();
                 fs.readAsArrayBuffer(file)
                 fs.onload = function (e){
                     // 解码音轨
-                    audioCtx.decodeAudioData(e.target.result,function(buf){
-                        
+                    _that.audioCtx.decodeAudioData(e.target.result,function(buf){
                         //创建一个 `AudioBufferSourceNode` 对象，该对象可以处理包含在内的音频数据
-                        let musicSource = audioCtx.createBufferSource()
+                        let musicSource = _that.audioCtx.createBufferSource()
                         musicSource.buffer = buf;
-
-                        createMusic(musicSource)
+                        _that.init(musicSource)
                     },function(e){
                         alert("文件解析出错")
                     })
                 }
-               
             }
 
-            // 处理 audio 元素获得音频
+            // audio 音乐处理
+            CreateMusic.prototype.audioMusic = function(id){
+                if(this.musicSource) this.stop();
 
-            function audioMusic(){
                 let audio = document.createElement('audio')
-                audio.src = ""
-
+                audio.src =id === 1?"../sources/1234566.mp3":"../sources/396131227447.mp3"
+                audio.autoplay = true;
+                let musicSource = this.audioCtx.createMediaElementSource(audio)
+                this.init(musicSource)
             }
-            
-            // 生成音乐 （处理音频 声音等）
-            function createMusic(musicSource){
 
-                /***创建音量控制节点**/
-                var gainNode = audioCtx.createGain();    
-                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);// 先把当前音量设为0 
+             // 初始化生成音乐 （处理音频 声音等）
+            CreateMusic.prototype.init = function(musicSource){
+                this.musicSource = musicSource;
+                this.gainNode.gain.setValueAtTime(0, this.audioCtx.currentTime);// 先把当前音量设为0 
                 // 3秒时间内音量从刚刚的0变成0.2，线性变化  
-                gainNode.gain.linearRampToValueAtTime(volume, audioCtx.currentTime + 3);
+                this.gainNode.gain.linearRampToValueAtTime(this.volume, this.audioCtx.currentTime + 3);
              
                 /***  将音量链接到音频  ***/
-                musicSource.connect(gainNode);
+                musicSource.connect(this.gainNode);
                 
                 /** 将频率及时间信息对象 与音频 链接**/ 
-                musicSource.connect(analyser);
+                musicSource.connect(this.analyser);
 
                   /** 将频率及时间信息对象 与 声音对象链接**/ 
-                analyser.connect(gainNode);
+                this.analyser.connect(this.gainNode);
 
                 /*** 将音量与设备关联 ***/
-                gainNode.connect(audioCtx.destination);
+                this.gainNode.connect(this.audioCtx.destination);
 
                 /*** 开始播放声音 ***/
-                musicSource.start(audioCtx.currentTime);
+                if('start' in musicSource) // audio中没有start方法
+                musicSource.start(this.audioCtx.currentTime);
                 // musicSource.stop(audioCtx.currentTime + 10);
+
+                //定时绘制 canvas
+                animationFra()
+                
                 musicSource.onended = function(){
                     console.log("结束了")
-                     /***  断开音量与音频的链接  ***/
-                    musicSource.disconnect(gainNode);
-                  
-                    musicSource.disconnect(analyser);
-                    analyser.disconnect(gainNode);
-
-                    /*** 将音量与设备关联 ***/
-                    gainNode.disconnect(audioCtx.destination);
-
-                    // 音乐播放完成后清楚定时器
-                    if(!animateTiemId)
-                       cancelAnimationFrame(animateTiemId)
-                    
+                    this.stop()
                 }
-
-                       // 音量控制
-
-                    document.querySelector('.voiceAdd').addEventListener('click',add)
-
-                    function add(){
-                        // 增加音量
-                        volume = volume >= 1.2?1.2:(Number(volume) + 0.1).toFixed(1)
-                        gainNode.gain.linearRampToValueAtTime(volume, audioCtx.currentTime);
-                        console.log(volume)
-                    }
-
-                      document.querySelector('.voiceReduce').addEventListener('click',function(){
-                        // 减小音量
-                        volume = volume <= 0?0:(Number(volume) - 0.1).toFixed(1)
-                        gainNode.gain.linearRampToValueAtTime(volume, audioCtx.currentTime);
-                        console.log(volume)
-                    })
-
             }
+
+            // 音量控制
+            CreateMusic.prototype.voice = function(type){
+                if(type){
+                    // 增加音量
+                    this.volume = this.volume >= 1.2?1.2:(Number(this.volume) + 0.1).toFixed(1)
+                    this.gainNode.gain.linearRampToValueAtTime(this.volume, this.audioCtx.currentTime);
+                }else{
+                    // 减小音量
+                    this.volume = this.volume <= 0?0:(Number(this.volume) - 0.1).toFixed(1)
+                    this.gainNode.gain.linearRampToValueAtTime(this.volume, this.audioCtx.currentTime);
+                }
+                console.log("音量:" + this.volume)
+            }
+
+
+            //  暂停音乐
+            CreateMusic.prototype.stop = function(){
+                console.log(111)
+                   /***  断开音量与音频的链接  ***/
+                  this.musicSource.disconnect(this.gainNode);
+                  this.musicSource.disconnect( this.analyser);
+                  this.analyser.disconnect( this.gainNode);
+
+                  /*** 将音量与设备断开 ***/
+                  this.gainNode.disconnect( this.audioCtx.destination);
+                  this.musicSource = null;
+                  // 音乐播放完成后清楚定时器
+                  if(!animateTiemId)
+                     cancelAnimationFrame(animateTiemId)
+                
+            }
+
+        // 音量控制
+            document.querySelector('.voiceAdd').onclick = function(){
+                Music.voice(true)// 增加音量
+            }
+
+            document.querySelector('.voiceReduce').onclick = function(){
+                Music.voice(false)// 减小音量
+            }
+
            
             
 // 创建画布
@@ -149,10 +181,14 @@
            this.grd.addColorStop(0, "red");
            this.grd.addColorStop(0.5, "yellow");
            this.grd.addColorStop(1, "#00E800");
-
-           this.init()
         }
-
+        Cvs.prototype.waiting = function(text){ // 等待提示
+            this.draw()
+            this.ctx.font="40px Arial";
+            this.ctx.textAlign="center";
+            var text = text || "请选择音乐"
+            this.ctx.fillText(text,this.width/2,this.height/2);
+        }
         Cvs.prototype.init = function(){ 
             // 初始化时确定每个条形音频的X轴位置
             let positionX = 10;
@@ -182,12 +218,14 @@
         // 绘制canvas
         Cvs.prototype.draw = function(){
             this.ctx.clearRect(0,0,this.width,this.height);
+            // 绘制背景颜色
             this.ctx.fillStyle = "#111";
             this.ctx.fillRect(0, 0, this.width, this.height);
+
             for(let i = 0;i<this.sum;i++){ // 循环每个条形音频
                 let height = this.analyserAry[i]*2 // 每个条形音频的高度(加大十倍)
                 //计算条形音频大概有多少个小长条(取整数) 小长条高度+间隔
-                let rectaSum = Math.floor(height/(this.h + 2)) + 1 // 至少一个
+                let rectaSum = Math.floor(height/(this.h + 2)) + 1 || 1// 至少一个
                 let positionY = this.height;
                 // 循环要绘制的小长方格
                 for(let s=0;s<rectaSum;s++){
@@ -205,24 +243,19 @@
         }
 
 
+        newCvs.init() // 初始化canvas
+        newCvs.waiting()
         
-        let newCvs = new Cvs(canvas);
-
         // 开启定时器
         function animationFra(){
-            let array_length = analyser.frequencyBinCount;
+            let array_length = Music.analyser.frequencyBinCount;
             let arrayBuf = new Uint8Array(array_length);
-            analyser.getByteFrequencyData(arrayBuf);	//将音频节点的数据拷贝到Uin8Array中
+            Music.analyser.getByteFrequencyData(arrayBuf);	//将音频节点的数据拷贝到Uin8Array中
             
             newCvs.update(arrayBuf) // 处理arryBuff
             newCvs.draw() // 绘制 canvas
             animateTiemId = requestAnimationFrame(animationFra) 
         }
-        animationFra()
-        
-
-
-
       
     </script>   
 </body>
