@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./video.css">
+    <title>视屏 video</title>
+</head>
+<body>
+    <h1>video 视频</h1>
+    <video id="video" controls="controls">
+        抱歉您的浏览器不支持H5视频
+    </video>
+  
+    <input type="file" id="input">
+    <script>
+        let video = document.querySelector('#video')
+        let input = document.getElementById('input')
+
+        //创建 media source
+        let mediaSource = new MediaSource()
+
+        // 视频类型
+        let mimeCodec = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';
+        mediaSource.addEventListener('sourceopen', sourceOpen);
+        //#endregion
+        function sourceOpen(){
+
+            var sourceBuffer = this.addSourceBuffer(mimeCodec);
+            // console.log(11)
+            // fetch("./bhsj.flv",{
+            //     headers:{
+            //         'Content-Type': 'application/octet-stream'
+            //     }
+            // }).then(function(file){
+            //     console.log(file)
+                sourceBuffer.addEventListener('updateend', function () {
+                    mediaSource.endOfStream();
+                    video.play();
+                    //console.log(mediaSource.readyState); // ended
+                });
+                input.onchange = function(e){
+                    let fs  = new FileReader();
+                    fs.readAsArrayBuffer(e.target.files[0])
+                    fs.onload = function(result){
+                        let buf = result.target.result;
+                        console.log(buf)
+                        sourceBuffer.appendBuffer(buf);
+                    }
+                }
+
+            // })
+           
+            
+
+        }
+
+
+        video.src = URL.createObjectURL(mediaSource)
+        
+     
+
+    </script>
+</body>
+</html>
