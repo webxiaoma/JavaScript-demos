@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./video.css">
+    <title>视屏 video</title>
+</head>
+<body>
+    <h1>video 视频</h1>
+    <video id="video" src="https://webxiaoma.gitee.io/sources/bhsj.mp4" controls="controls">
+        <!-- <source src="https://webxiaoma.gitee.io/sources/bhsj.mp4" type="video/mp4">
+        <source src="https://webxiaoma.gitee.io/sources/bhsj.webm" type="video/webm">
+        <source src="https://webxiaoma.gitee.io/sources/bhsj.ogv" type="video/ogg"> -->
+        抱歉您的浏览器不支持H5视频
+    </video>
+    <div class="message">
+      <h3 class="type">视频格式：<span>mp4</span>格式</h3>
+      <h3 class="status">视频状态：<span></span></h3>
+      <h3 class="total">共计时长：<span></span></h3>
+      <h3 class="porcess">视频进度：<span>0</span></h3>
+      <h3 class="volume">音量：<span>1</span>(0-1之间)</h3>
+      <h3 class="muted">是否静音：<span>否</span></h3>
+      <h3 class="speed">播放速度：<span>1</span>倍</h3>
+      <h3 class="controls">控件状态：<span>显示</span></h3>
+      <h3 class="loop">是否循环播放：<span>否</span></h3>
+    </div>
+    <div class="btnWrap">
+            <button onclick="changeVideoType(1)">切换MP4格式视频</button>
+            <button onclick="changeVideoType(2)">切换WEBM格式视频</button>
+            <button onclick="changeVideoType(3)">切换OGG格式视频</button>
+    </div>
+    <div class="btnWrap">
+        <button onclick="play()">开始</button>
+        <button onclick="pause()">暂停</button>
+        <button onclick="load()">重新加载视频</button>
+        <button onclick="jump(true)">快进</button>
+        <button onclick="jump(false)">后退</button>
+        <button onclick="fullScreen()">全屏</button>
+        <button onclick="muted()">静音</button>
+        <button onclick="controls()">是否显示控件</button>
+        <button onclick="loop()">循环播放</button>
+        <br>
+        <button onclick="volume(true)">音量 +</button>
+        <button onclick="volume(false)">音量 -</button>
+        <button onclick="playRate(true)">播放速度 +</button>
+        <button onclick="playRate(false)">播放速度 -</button>
+    </div>
+
+    <script>
+        let video = document.querySelector('#video')
+        function changeVideoType(type){
+           let videoType;
+           switch(type){
+              case 1:videoType = 'mp4'
+                break;
+              case 2:videoType = 'webm'
+                break;
+              case 3:videoType = 'ogv'
+                break
+           }
+
+           video.src=`https://webxiaoma.gitee.io/sources/bhsj.${videoType}`
+           document.querySelector('.message .type span').innerHTML = videoType
+
+        }
+
+        /** 视频方法 **/ 
+        function play(){ // 播放视频
+            video.play()
+        } 
+
+        function pause(){ // 播放暂停视频
+            video.pause()
+        } 
+
+        function load(){ // 重新加载视频
+            video.load()
+        } 
+
+
+
+       /**视频属性**/
+
+       // 音量控制
+        function volume(type){ 
+            if(type){ // 加大音量
+                video.volume = (video.volume >= 1?1:Number(video.volume) + .1).toFixed(1)
+            }else{
+                video.volume = (video.volume <= 0?0:Number(video.volume) - .1).toFixed(1)
+            }
+            document.querySelector('.message .volume span').innerHTML = video.volume
+        } 
+        // 静音设置
+        function muted(){
+            video.muted = !video.muted
+            document.querySelector('.message .muted span').innerHTML = video.muted?"是":"否"
+        }
+        // 快进后退
+        function jump(type){
+            if(type){ // 快进
+                video.currentTime += 10
+            }else{
+                video.currentTime -= 10
+            }
+            document.querySelector('.message .porcess span').innerHTML = video.currentTime
+        }
+
+        // 播放速度
+        function playRate(type){
+            if(type){ // 快进
+                video.playbackRate = (video.playbackRate + 0.2).toFixed(1)
+            }else{
+                video.playbackRate = (video.playbackRate - 0.2).toFixed(1)
+            }
+            document.querySelector('.message .speed span').innerHTML = video.playbackRate
+        }
+        // 控件状态
+        function controls(){
+            video.controls = !video.controls
+            document.querySelector('.message .controls span').innerHTML = video.controls?"显示":"隐藏"
+
+        }
+        // 循环播放
+        function loop(){
+            video.loop = !video.loop
+            document.querySelector('.message .loop span').innerHTML = video.loop?"是":"否"
+
+        }
+
+    /*多媒体事件*/
+
+        // 当目前的播放位置已更改时触发。
+        video.ontimeupdate =  function(){
+            document.querySelector('.message .porcess span').innerHTML = video.currentTime
+        }
+        // 多媒体结束时触发
+        video.onended =  function(){
+          document.querySelector('.message .status span').innerHTML = "结束"
+        }
+        //当浏览器已加载音频/视频的元数据时触发。
+        video.onloadeddata =  function(){
+
+          // 视频共计时长
+          document.querySelector('.message .total span').innerHTML = video.duration
+          document.querySelector('.message .status span').innerHTML = "视频加载完成"
+        }
+        //当音频/视频已开始或不再暂停时触发。
+        video.onplay =  function(){
+            document.querySelector('.message .status span').innerHTML = "开始播放"
+        }
+        //当音频/视频已暂停时触发。
+        video.onpause =  function(){
+            document.querySelector('.message .status span').innerHTML = "暂停"
+        }
+        //当音频/视频在因缓冲而暂停或停止后已就绪时触发。
+        video.onplaying =  function(){
+            document.querySelector('.message .status span').innerHTML = "缓冲完成"
+        }
+        //当视频由于需要缓冲下一帧而停止时触发
+        video.onwaiting =  function(){
+            document.querySelector('.message .status span').innerHTML = "缓冲中"
+        }
+        //当在音频/视频加载期间发生错误时触发。
+        video.error =  function(){
+            document.querySelector('.message .status span').innerHTML = "加载出错"
+        }
+        //当音频/视频的播放速度已更改时触发。
+        video.onratechange = function(state){
+            document.querySelector('.message .status span').innerHTML = "播放速度有变化"
+        }
+
+
+   /**其他**/
+        // 全屏显示
+        function fullScreen(){
+
+            let full = function(){
+                return  video.requestFullScreen  || 
+                video.webkitRequestFullscreen ||
+                video.mozRequestFullScreen  ||
+                video.msRequestFullScreen 
+            }
+            full().call(video)
+
+            /**
+             * 全屏事件
+             * onfullscreenchange 浏览器全屏或退出触发的事件
+             * onfullscreenerror：浏览器全屏失败的时候触发的事件
+             * onfullscreenerror事件
+             * fullscreenEnabled：如果页面可用于全屏模式，则返回布尔值true
+             * 
+             *  */ 
+             
+        }
+
+
+     
+
+    </script>
+</body>
+</html>

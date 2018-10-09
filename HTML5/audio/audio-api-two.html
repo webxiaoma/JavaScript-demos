@@ -39,7 +39,7 @@
                 
                 //处理 audio 元素获得音频
                 function audioMusic(id){
-                    newCvs.waiting("正在解析文件...")
+                    newCvs.waiting("正在下载音乐，请稍等...")
                     Music.audioMusic(id)
                 }
 
@@ -73,7 +73,7 @@
                         musicSource.buffer = buf;
                         _that.init(musicSource)
                     },function(e){
-                        alert("文件解析出错")
+                        newCvs.waiting("文件解析出错")
                     })
                 }
             }
@@ -86,7 +86,10 @@
                 audio.src =id === 1?"../sources/1234566.mp3":"../sources/396131227447.mp3"
                 audio.autoplay = true;
                 let musicSource = this.audioCtx.createMediaElementSource(audio)
-                this.init(musicSource)
+                let _that = this;
+                audio.onplay = function(){
+                    _that.init(musicSource)
+                }
             }
 
              // 初始化生成音乐 （处理音频 声音等）
@@ -182,8 +185,9 @@
            this.grd.addColorStop(0.5, "yellow");
            this.grd.addColorStop(1, "#00E800");
         }
-        Cvs.prototype.waiting = function(text){ // 等待提示
+        Cvs.prototype.waiting = function(text){ // canvas中添加文字
             this.draw()
+            // 添加文字
             this.ctx.font="40px Arial";
             this.ctx.textAlign="center";
             var text = text || "请选择音乐"
@@ -255,6 +259,7 @@
             newCvs.update(arrayBuf) // 处理arryBuff
             newCvs.draw() // 绘制 canvas
             animateTiemId = requestAnimationFrame(animationFra) 
+            console.log(1)
         }
       
     </script>   
