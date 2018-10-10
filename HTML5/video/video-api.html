@@ -11,54 +11,35 @@
     <video id="video" controls="controls">
         抱歉您的浏览器不支持H5视频
     </video>
-  
-    <input type="file" id="input">
+
     <script>
         let video = document.querySelector('#video')
         let input = document.getElementById('input')
 
         //创建 media source
         let mediaSource = new MediaSource()
-
+        video.src = URL.createObjectURL(mediaSource)
         // 视频类型
-        let mimeCodec = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';
+        let mimeCodec = 'video/webm; codecs="vorbis, vp8"';
+        let isItSupported = MediaSource.isTypeSupported(mimeCodec); // 返回值为 Boolean
+        console.log(isItSupported)
         mediaSource.addEventListener('sourceopen', sourceOpen);
-        //#endregion
-        function sourceOpen(){
-
+        function sourceOpen(e){
+            URL.revokeObjectURL(video.src);
             var sourceBuffer = this.addSourceBuffer(mimeCodec);
-            // console.log(11)
-            // fetch("./bhsj.flv",{
-            //     headers:{
-            //         'Content-Type': 'application/octet-stream'
-            //     }
-            // }).then(function(file){
-            //     console.log(file)
-                sourceBuffer.addEventListener('updateend', function () {
+            fetch("./bhsj.webm").then(function(file){
+                    return file.arrayBuffer()
+            }).then(function(aryBuf){
+                console.log(aryBuf)
+                sourceBuffer.appendBuffer(aryBuf);
+            })
+            sourceBuffer.addEventListener('updateend', function () {
+                if(!sourceBuffer.updating && mediaSource.readyState === 'open'){
                     mediaSource.endOfStream();
                     video.play();
-                    //console.log(mediaSource.readyState); // ended
-                });
-                input.onchange = function(e){
-                    let fs  = new FileReader();
-                    fs.readAsArrayBuffer(e.target.files[0])
-                    fs.onload = function(result){
-                        let buf = result.target.result;
-                        console.log(buf)
-                        sourceBuffer.appendBuffer(buf);
-                    }
                 }
-
-            // })
-           
-            
-
+            });
         }
-
-
-        video.src = URL.createObjectURL(mediaSource)
-        
-     
 
     </script>
 </body>
