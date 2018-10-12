@@ -21,6 +21,7 @@
 ### 音频视频处理
 
 - [H5音频处理](http://webxiaoma.com/javascript/audio.html)
+- [H5视频处理](http://webxiaoma.com/javascript/video.html)
 
 
 ### 文件与二进制

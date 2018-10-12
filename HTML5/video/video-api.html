@@ -22,7 +22,6 @@
         // 视频类型
         let mimeCodec = 'video/webm; codecs="vorbis, vp8"';
         let isItSupported = MediaSource.isTypeSupported(mimeCodec); // 返回值为 Boolean
-        console.log(isItSupported)
         mediaSource.addEventListener('sourceopen', sourceOpen);
         function sourceOpen(e){
             URL.revokeObjectURL(video.src);
@@ -30,7 +29,6 @@
             fetch("./bhsj.webm").then(function(file){
                     return file.arrayBuffer()
             }).then(function(aryBuf){
-                console.log(aryBuf)
                 sourceBuffer.appendBuffer(aryBuf);
             })
             sourceBuffer.addEventListener('updateend', function () {
