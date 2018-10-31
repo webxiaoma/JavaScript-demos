@@ -3,6 +3,10 @@
     background:green;
 }
 
+h1{
+    text-align:center;
+}
+
 .divOne{
     width:200px;
     margin:0 auto;
