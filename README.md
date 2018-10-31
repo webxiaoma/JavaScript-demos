@@ -30,3 +30,8 @@
 - [Blob处理类文件对象](http://webxiaoma.com/javascript/Blob%E5%A4%84%E7%90%86%E7%B1%BB%E6%96%87%E4%BB%B6%E5%AF%B9%E8%B1%A1.html)
 - [FileReader和FormData对象](http://webxiaoma.com/javascript/FileReader%E5%92%8CFormData%E5%AF%B9%E8%B1%A1.html)
 - [base64处理](http://webxiaoma.com/javascript/base64%E5%A4%84%E7%90%86.html)
+
+
+### 离线和缓存
+
+- [Service Worker API](http://webxiaoma.com/javascript/service-worker.htm)
