@@ -1,15 +1,23 @@
 *{
-    margin:0;
-    padding:0;
-    background:black;
+
+    background:green;
 }
 
-div{
+.divOne{
     width:200px;
-    height:150px;
+    margin:0 auto;
 }
 
-div img{
+.divOne img{
     width:100%;
-    height:100%;
+}
+
+.btnWrap{
+    margin:20px 0;
+    text-align: center;
+}
+
+.btnWrap button{
+    padding:5px 10px;
+    color:#fff;
 }
