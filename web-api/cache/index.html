@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>cache API</title>
+</head>
+<body>
+    <h1>cache API</h1>
+    
+    <script>
+        if('caches' in window){ // 判读浏览器是否支持caches
+            caches.open('cache-data').then(function(cache) {
+                cache.addAll(['./', './img/logo.jpg']).then(function() { 
+                    console.log("添加数据成功")
+                });
+            
+                cache.add('./test.html');
+            });
+        }
+
+
+        // `cache.put()`方法
+        fetch('./test2.html').then(function(response) {
+             caches.open('cache-data').then(function(cache) {
+               cache.put('dataName', response);
+            });
+        });
+
+        //访问缓存数据
+        caches.open('cache-data').then(function(cache) { 
+            cache.keys().then(function(cachedRequests) { 
+                cachedRequests.map(item=>{
+                    console.log(item === `cache-data`)
+                })
+                console.log(cachedRequests); // [Request, Request]
+            });
+        });
+          
+
+        caches.open('cache-data').then(function(cache) {
+            cache.match('./img/logo.jpg').then(function(matchedResponse) {
+                console.log("---- match() ----")
+                console.log(matchedResponse);
+            });
+
+            cache.matchAll().then(function(matchedResponse) {
+                console.log("---- matchAll() ----")
+                console.log(matchedResponse);
+            });
+
+        });
+
+
+    </script>
+</body>
+</html>

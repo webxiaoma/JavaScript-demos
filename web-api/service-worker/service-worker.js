@@ -106,3 +106,12 @@ self.addEventListener('activate', function (event) {
 //     }
 //     event.ports[0].postMessage('来自service worker 的消息')
 // })
+
+
+// 消息通知
+
+
+self.addEventListener('notificationclick', e => {
+    let clickedNotification = e.notification;
+    console.log(e)
+});

@@ -21,6 +21,28 @@ if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.addEventListener('message', function (e) {
                    console.log(e)
                 })
+
+                // 消息通知
+                registration.showNotification('webxiaoma',{
+                    // 视觉相关
+                   "body": "发送消息了",
+                   "icon": './img/mxx48.jpg',
+                   "badge": './img/mxx.ico',
+                   "image": './img/mxx188.jpg',
+                   "actions": [
+                       {
+                           action: 'coffee-action',
+                           title: '确定',
+                           icon: './img/mxx.ico'
+                       },
+                       {
+                           action: 'doughnut-action',
+                           title: '取消',
+                           icon: './img/mxx.ico'
+                       }
+                   ],
+                   vibrate: [500, 110, 500, 110, 450, 110, 200, 110, 170, 40, 450, 110, 200, 110, 170, 40, 500]
+                })
             })
             .catch(function (err) {
                 // 注册失败:(
