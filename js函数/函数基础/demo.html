@@ -9,41 +9,12 @@
 <body>
     <div></div>
     <script>
-            1,function fun(a){
-                console.log(a)  // 1
-              }(10)
-
-
-        console.log(a) // underfind
-
-        var a = 1; 
-        console.log(a) // 1
-
-        function fun(){ // 函数fun 处于全局环境下
-            var b = 2; //变量b就处于局部环境下，它是局部变量
-            var a = 3; //变量a就处于局部环境下，它是局部变量
-            f = 1
-            console.log(a) // 3
-        }
-        fun()
-        console.log(a) // 1
-
-        var e = 1
-        c = 1
-        console.log(window)
-         
-
-        console.log(fun) // fun函数，这里是因为函数提优先于同名变量提升（其实是覆盖了变量对象中的同名变量）
-
-var fun = 111;
-function fun(){
-
+        function fun(){
+    this.name = "King"
 }
 
-
-!function aa(){
-
-}
+let f = new fun() // fun() 函数就是构造函数
+console.log(f.constructor)
     </script>
 </body>
 </html>
